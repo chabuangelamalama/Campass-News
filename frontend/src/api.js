@@ -1,4 +1,5 @@
-const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+const BASE_URL = "";
+
 
 export default BASE_URL;
 
@@ -13,7 +14,8 @@ async function request(path, { method = "GET", body, auth = false } = {}) {
     if (token) headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(`${BASE_URL}${path}`, {
+
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
