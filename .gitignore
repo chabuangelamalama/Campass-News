@@ -28,3 +28,10 @@ dist-ssr
 backend/.env
 node_modules/
 .venv/
+
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+
+# Ignore Node modules
+node_modules/
