@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { api } from "../api.js";
 import { CategoryTag, formatDate } from "../components/StoryCard.jsx";
 import CommentList from "../components/CommentList.jsx";
+import ReactionBar from "../components/ReactionBar.jsx";
 
 export default function StoryDetail() {
   const { id } = useParams();
@@ -62,6 +63,8 @@ export default function StoryDetail() {
       <div className="prose prose-ink mt-6 whitespace-pre-wrap leading-relaxed text-ink/90">
         {story.body}
       </div>
+      
+      <ReactionBar targetType="story" targetId={story.id} />
 
       <CommentList storyId={story.id} comments={comments} setComments={setComments} />
     </div>

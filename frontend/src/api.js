@@ -57,6 +57,52 @@ export const api = {
 
   listUsers: () => request("/users", { auth: true }),
   setUserRole: (id, role) => request(`/users/${id}/role`, { method: "PUT", body: { role }, auth: true }),
+
+  getReactions: (targetType, targetId) => request(`/reactions?target_type=${targetType}&target_id=${targetId}`),
+  setReaction: (targetType, targetId, emoji) => request("/reactions", { method: "POST", body: { target_type: targetType, target_id: targetId, emoji }, auth: true }),
+
+  listNotifications: () => request("/notifications", { auth: true }),
+ unreadCount: () => request("/notifications/unread-count", { auth: true }),
+ markAllRead: () => request("/notifications/read-all", { method: "PUT", auth: true }),
+
+ uploadImage: async (file) => {
+  const token = getToken();
+  const formData = new FormData();
+  formData.append("image", file);
+  const res = await fetch(`${API_BASE}/uploads`, {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.detail || "Upload failed.");
+  return data.url;
+},
+
+
+listPendingStories: () => request("/stories/pending", { auth: true }),
+setStoryStatus: (id, status) => request(`/stories/${id}/status`, { method: "PUT", body: { status }, auth: true }),
+listTrending: () => request("/stories/trending/list"),
+
+listYearbookYears: () => request("/yearbook/years/list", { auth: true }),
+listYearbookEntries: (year) => request(`/yearbook/${year}`, { auth: true }),
+uploadYearbookEntry: async (year, caption, file) => {
+  const token = getToken();
+  const formData = new FormData();
+  formData.append("year", year);
+  formData.append("caption", caption);
+  formData.append("image", file);
+  const res = await fetch(`${API_BASE}/yearbook`, {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.detail || "Upload failed.");
+  return data;
+},
+deleteYearbookEntry: (id) => request(`/yearbook/${id}`, { method: "DELETE", auth: true }),
+
 };
 
 export { getToken };

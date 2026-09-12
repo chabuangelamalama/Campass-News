@@ -9,6 +9,9 @@ import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import Newsroom from "./pages/Newsroom.jsx";
 import Admin from "./pages/Admin.jsx";
+import SubmitStory from "./pages/SubmitStory.jsx";
+import Moderation from "./pages/Moderation.jsx";
+import Yearbook from "./pages/Yearbook.jsx";
 
 export default function App() {
   return (
@@ -21,6 +24,10 @@ export default function App() {
           <Route path="/tea" element={<Tea />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/submit-story" element={<ProtectedRoute><SubmitStory /></ProtectedRoute>} />
+          <Route path="/moderation" element={<ProtectedRoute requireRole="editor"><Moderation /></ProtectedRoute>} />
+          <Route path="/yearbook" element={<ProtectedRoute><Yearbook /></ProtectedRoute>} />
+        
           <Route
             path="/newsroom"
             element={
@@ -37,7 +44,8 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-        </Routes>
+
+      </Routes>
       </main>
       <footer className="bg-ink text-paper/70 text-center py-6 text-sm mt-auto">
         © 2026 The Campus Line. All rights reserved.

@@ -7,14 +7,19 @@ export default function Home() {
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [trending, setTrending] = useState([]);
 
-  useEffect(() => {
-    api
-      .listStories()
-      .then(setStories)
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false));
-  }, []);
+
+
+ useEffect(() => {
+  api.listTrending().then(setTrending).catch(() => {});
+
+  api
+    .listStories()
+    .then(setStories)
+    .catch((e) => setError(e.message))
+    .finally(() => setLoading(false));
+}, []);
 
   if (loading) {
     return <div className="max-w-6xl mx-auto px-5 py-16 text-newsgrey">Loading the front page…</div>;
@@ -60,6 +65,16 @@ export default function Home() {
       )}
 
       <div className="flex items-baseline justify-between mb-5">
+        {trending.length > 0 && (
+  <div className="mb-12">
+    <h2 className="font-display text-2xl font-semibold mb-4">🔥 Trending now</h2>
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {trending.map((story) => (
+        <StoryCard key={`trending-${story.id}`} story={story} />
+      ))}
+    </div>
+  </div>
+)}
         <h2 className="font-display text-2xl font-semibold">Also making the rounds</h2>
       </div>
 

@@ -1,4 +1,5 @@
 import React from "react";
+import ReactionBar from "./ReactionBar.jsx";
 
 const ROTATIONS = ["rotate-note-1", "rotate-note-2", "rotate-note-3", "rotate-note-4"];
 
@@ -22,8 +23,9 @@ export default function TeaCard({ post, index, adminLabel, onDelete }) {
         <span>🕵️ Anonymous</span>
         <span className="text-newsgrey font-normal">{timeAgo(post.created_at)}</span>
       </div>
+      
       <p className="font-display italic text-ink/90 leading-snug">"{post.text}"</p>
-
+      <ReactionBar targetType="tea" targetId={post.id} />
       {adminLabel && (
         <p className="mt-3 text-xs bg-ink text-paper inline-block px-2 py-1 rounded">
           Posted by: {adminLabel}

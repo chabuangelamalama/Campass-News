@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { api } from "../api.js";
+import ReactionBar from "../components/ReactionBar.jsx";
 
 function timeAgo(iso) {
   const date = new Date(iso);
@@ -67,6 +68,7 @@ export default function CommentList({ storyId, comments, setComments }) {
               </div>
             </div>
             <p className="text-ink/90 mt-1.5">{c.body}</p>
+            <ReactionBar targetType="comment" targetId={c.id} />
           </div>
         ))}
         {comments.length === 0 && (

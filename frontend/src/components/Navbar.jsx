@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
+import NotificationBell from "./NotificationBell.jsx";
 
 function NavItem({ to, children }) {
   return (
@@ -37,6 +39,9 @@ export default function Navbar() {
         <nav className="hidden md:flex items-center gap-6">
           <NavItem to="/">Front Page</NavItem>
           <NavItem to="/tea"> Tea Wall </NavItem>
+          {user && <NavItem to="/submit-story">Submit Story</NavItem>}
+          {isEditor && <NavItem to="/moderation">Moderation</NavItem>}
+          {user && <NavItem to="/yearbook">Yearbook</NavItem>}
           {isEditor && <NavItem to="/newsroom">Newsroom</NavItem>}
           {isAdmin && <NavItem to="/admin">Admin</NavItem>}
         </nav>

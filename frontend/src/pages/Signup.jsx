@@ -63,6 +63,9 @@ export default function Signup() {
             minLength={6}
             className="w-full border border-ink/15 rounded-md p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-magenta/40"
           />
+          <p className="text-xs text-newsgrey mt-1">
+                         At least 8 characters, with a letter and a number.
+          </p>
         </div>
         {error && <p className="text-magenta-dark text-sm">{error}</p>}
         <button
