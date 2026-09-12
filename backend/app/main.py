@@ -1,11 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from app.core.rate_limit import limiter
+
+
 from app import models
 from app.core.security import hash_password
 from app.database import Base, SessionLocal, engine
-from app.routers import auth, comments, stories, users
-from app.routers import tea
+from app.routers import auth, comments, stories, users, tea, reactions, notifications,yearbook
+from app.core.security_headers import SecurityHeadersMiddleware
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -13,17 +19,29 @@ app = FastAPI(title="CampassNews API")
 
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
     allow_origin_regex=r"https://campass-news.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+app.add_middleware(SecurityHeadersMiddleware)
+
+
 app.include_router(auth.router)
 app.include_router(stories.router)
 app.include_router(comments.router)
 app.include_router(tea.router)
 app.include_router(users.router)
+app.include_router(reactions.router)
+app.include_router(notifications.router)
+app.include_router(yearbook.router)
+
+
 
 
 def _bootstrap_admin():

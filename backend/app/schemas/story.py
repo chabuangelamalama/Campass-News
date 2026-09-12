@@ -1,8 +1,6 @@
 from datetime import datetime
 from typing import Optional
-
 from pydantic import BaseModel
-
 from app.schemas.user import AuthorOut
 
 
@@ -12,11 +10,10 @@ class StoryBase(BaseModel):
     summary: str = ""
     body: str
     image_url: str = ""
-    featured: bool = False
 
 
 class StoryCreate(StoryBase):
-    pass
+    pass  # students submit these fields only — no featured, no status
 
 
 class StoryUpdate(BaseModel):
@@ -28,8 +25,14 @@ class StoryUpdate(BaseModel):
     featured: Optional[bool] = None
 
 
+class StoryStatusUpdate(BaseModel):
+    status: str  # "published" or "rejected"
+
+
 class StoryOut(StoryBase):
     id: int
+    featured: bool
+    status: str
     created_at: datetime
     author: Optional[AuthorOut] = None
     comment_count: int = 0

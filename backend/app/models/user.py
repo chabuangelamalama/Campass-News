@@ -23,7 +23,9 @@ class User(Base):
     role = Column(Enum(RoleEnum), default=RoleEnum.student, nullable=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+    token_version = Column(Integer, default=0, nullable=False)
 
     stories = relationship("Story", back_populates="author")
     comments = relationship("Comment", back_populates="author")
     tea_posts = relationship("Tea", back_populates="author")
+    

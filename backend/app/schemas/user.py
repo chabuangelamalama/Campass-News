@@ -1,6 +1,7 @@
+import re
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from app.models import RoleEnum
 
@@ -8,7 +9,16 @@ from app.models import RoleEnum
 class UserCreate(BaseModel):
     username: str = Field(min_length=3, max_length=50)
     email: EmailStr
-    password: str = Field(min_length=6, max_length=128)
+    password: str = Field(min_length=8, max_length=128)
+
+    @field_validator("password")
+    @classmethod
+    def password_strength(cls, v):
+        if not re.search(r"[A-Za-z]", v):
+            raise ValueError("Password must contain at least one letter.")
+        if not re.search(r"[0-9]", v):
+            raise ValueError("Password must contain at least one number.")
+        return v
 
 
 class UserLogin(BaseModel):
@@ -32,8 +42,6 @@ class RoleUpdate(BaseModel):
 
 
 class AuthorOut(BaseModel):
-    """Minimal public-safe user shape, embedded in stories/comments."""
-
     id: int
     username: str
 

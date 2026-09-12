@@ -40,6 +40,14 @@ def create_comment(
     db.add(comment)
     db.commit()
     db.refresh(comment)
+
+    if story.author_id and story.author_id != user.id:
+        db.add(models.Notification(
+            recipient_id=story.author_id,
+            message=f'{user.username} commented on your story "{story.title}"',
+            story_id=story.id,
+        ))
+        db.commit()
     return comment
 
 
@@ -56,3 +64,4 @@ def delete_comment(
         raise HTTPException(403, "You can only delete your own comments.")
     db.delete(comment)
     db.commit()
+

@@ -1,11 +1,3 @@
-"""
-Everything related to *how we know who's making a request* lives here:
-password hashing, JWT creation/verification, and the FastAPI dependencies
-that routers use to require a logged-in user or a specific role.
-
-Nothing in this file talks to routers or schemas — routers depend on this
-file, never the other way around.
-"""
 import os
 from datetime import datetime, timedelta
 from typing import Optional
@@ -19,11 +11,9 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app import models
 
-# In production, always set this via an environment variable — see
-# .env.example and SECURITY.md. This default is only for local dev.
 SECRET_KEY = os.environ.get("CAMPUSNEWS_SECRET_KEY", "dev-secret-change-me-please")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login", auto_error=False)
@@ -37,24 +27,13 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
-    to_encode = data.copy()
+def create_access_token(user: models.User, expires_delta: Optional[timedelta] = None) -> str:
+    to_encode = {"sub": str(user.id), "tv": user.token_version}
     expire = datetime.utcnow() + (
         expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
-
-def _decode_token(token: str) -> Optional[int]:
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: str = payload.get("sub")
-        if user_id is None:
-            return None
-        return int(user_id)
-    except JWTError:
-        return None
 
 
 def get_current_user_optional(
@@ -64,10 +43,18 @@ def get_current_user_optional(
     require login (e.g. posting tea anonymously vs. attributed)."""
     if not token:
         return None
-    user_id = _decode_token(token)
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        token_version = payload.get("tv")
+    except JWTError:
+        return None
     if user_id is None:
         return None
-    return db.query(models.User).filter(models.User.id == user_id).first()
+    user = db.query(models.User).filter(models.User.id == int(user_id)).first()
+    if user is None or user.token_version != token_version:
+        return None
+    return user
 
 
 def get_current_user(
@@ -81,12 +68,19 @@ def get_current_user(
     )
     if not token:
         raise credentials_exception
-    user_id = _decode_token(token)
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        token_version = payload.get("tv")
+    except JWTError:
+        raise credentials_exception
     if user_id is None:
         raise credentials_exception
-    user = db.query(models.User).filter(models.User.id == user_id).first()
+    user = db.query(models.User).filter(models.User.id == int(user_id)).first()
     if user is None or not user.is_active:
         raise credentials_exception
+    if user.token_version != token_version:
+        raise credentials_exception  # token was issued before a revocation
     return user
 
 
